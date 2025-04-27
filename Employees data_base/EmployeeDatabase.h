@@ -41,9 +41,11 @@ private:
 
 	// --- Private methods ---
 	static char* _deep_copy(const char* input_str);              // Deep copy of a string
-    static unsigned char _validate_age(const unsigned char user_age);  // Check if the age is valid
+    static unsigned char _validate_age(const unsigned char user_age);  // Check if the age is valid for initialize Employees
     static unsigned char _validate_age(const int user_age);
-    int _user_validation(const size_t index) const;
+	bool _check_age(const unsigned char user_age);          // Check if the age is valid
+	bool _check_age(const int user_age);
+	int _user_validation(const size_t index) const;     // Get user answer
     
 	void _check_resize();       // Check if the array needs to be resized
 	void _resize_database();    // Double the size of the DataBase array
@@ -74,9 +76,16 @@ public:
     void add_employee(const char* user_name, const char* user_surname, const int user_age);
 
     // Setters
-    void set_name(const char* user_name, const size_t index);
-    void set_name(const char* user_name, const char* search_name);
-	void set_surname(const char* user_surname, const size_t index);
+	void set_name(const char* user_name, const size_t index);               // Change name by index
+	void set_name(const char* user_name, const char* search_name);          // Change name by search name
+
+	void set_surname(const char* user_surname, const size_t index);         // Change surname by index
+	void set_surname(const char* user_surname, const char* search_surname); // Change surname by search surname
+
+	void set_age(const unsigned char user_age, const size_t index);         // Change age by index
+	void set_age(const int user_age, const size_t index);
+	void set_age(const unsigned char user_age, const char* search_surname); // Change age by search surname
+	void set_age(const int user_age, const char* search_name);
 
     // Getters
     char* get_name(const size_t index) const;
@@ -86,6 +95,11 @@ public:
     // Print
     void print_employee(const size_t index) const;
     void print_database() const;
+    void print_by_age() const;
+    void print_by_surname_letter() const;
+
+	// Delete
+	void delete_employee(const size_t index); // Delete employee by index
     
 	// --- Interface methods ---
     size_t search_by_name(const char* search_name);

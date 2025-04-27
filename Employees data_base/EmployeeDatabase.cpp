@@ -102,6 +102,7 @@ char* EmployeeDatabase::_deep_copy(const char* input_str)
 }
 
 // Check if the age is valid
+// I using this method for initialize Employees
 unsigned char EmployeeDatabase::_validate_age(const unsigned char user_age)
 {
 	if (user_age > 123)
@@ -117,6 +118,23 @@ unsigned char EmployeeDatabase::_validate_age(const int user_age)
 	return _validate_age(static_cast<const unsigned char>(user_age));
 }
 
+// Check if the age is valid
+bool EmployeeDatabase::_check_age(const unsigned char user_age)
+{
+	if (user_age > 123 || user_age < 0)
+		return false;
+	else
+		return true;
+}
+
+bool EmployeeDatabase::_check_age(const int user_age)
+{
+	_check_age(static_cast<const unsigned char>(user_age));
+}
+
+// Get user answer
+// Retutn 1 if the employee is found, 2 if not
+// If the answer is invalid, ask again
 int EmployeeDatabase::_user_validation(const size_t index) const
 {
 	std::cout << "Is this the employee you are looking for?\n";
@@ -314,18 +332,75 @@ void EmployeeDatabase::set_name(const char* user_name, const size_t index)
 	database[index].name = _deep_copy(user_name);
 }
 
+// Change name by search name
+// If user_name is nullptr or search_name is nullptr, do nothing
 void EmployeeDatabase::set_name(const char* user_name, const char* search_name)
 {
 	if (user_name == nullptr || search_name == nullptr) return;
 	size_t index = search_by_name(search_name);
 
 	if (index == Err) {
-		std::cout << "Employee not found\n";
+		std::cout << "\nEmployee not found\n\n";
 		return;
 	}
 
 	else
 		set_name(user_name, index);
+}
+
+// Change surname by index
+void EmployeeDatabase::set_surname(const char* user_surname, const size_t index)
+{
+	if (user_surname == nullptr) return;
+	delete[] database[index].surname;
+	database[index].surname = _deep_copy(user_surname);
+}
+
+// Change surname by search surname
+// If user_surname is nullptr or search_surname is nullptr, do nothing
+void EmployeeDatabase::set_surname(const char* user_surname, const char* search_surname)
+{
+	if (user_surname == nullptr || search_surname == nullptr) return;
+	size_t index = search_by_surname(search_surname);
+
+	if (index == Err) {
+		std::cout << "\nEmployee not found\n\n";
+		return;
+	}
+
+	else
+		set_surname(user_surname, index);
+}
+
+// Change age by index
+void EmployeeDatabase::set_age(const unsigned char user_age, const size_t index)
+{
+	if (user_age > 123 || user_age < 0) return;
+	database[index].age = user_age;
+}
+
+void EmployeeDatabase::set_age(const int user_age, const size_t index)
+{
+	set_age(static_cast<const unsigned char>(user_age), index);
+}
+
+// Change age by search surname
+// If user_age is invalid or search_surname is nullptr, do nothing
+void EmployeeDatabase::set_age(const unsigned char user_age, const char* search_surname)
+{
+	if (_check_age(user_age) == false || search_surname == nullptr) return;
+	size_t index = search_by_name(search_surname);
+	if (index == Err) {
+		std::cout << "\nEmployee not found\n\n";
+		return;
+	}
+	else
+		set_age(user_age, index);
+}
+
+void EmployeeDatabase::set_age(const int user_age, const char* search_name)
+{
+	set_age(static_cast<const unsigned char>(user_age), search_name);
 }
 
 // --- Getters ---
@@ -369,6 +444,19 @@ void EmployeeDatabase::print_database() const
 		print_employee(i);
 		std::cout << "---------------------\n\n";
 	}
+}
+
+// Delete employee by index
+// If the index is out of range, do nothing
+// If the index is valid, clear the employee object and move all elements after it to the left
+void EmployeeDatabase::delete_employee(const size_t index)
+{
+	database[index].clear();
+	for (size_t i = index; i < database_size - 1; i++) {
+		database[i] = std::move(database[i + 1]);
+	}
+	database[database_size].~Employee();
+	database_size--;
 }
 
 
