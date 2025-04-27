@@ -117,11 +117,29 @@ unsigned char EmployeeDatabase::_validate_age(const int user_age)
 	return _validate_age(static_cast<const unsigned char>(user_age));
 }
 
+int EmployeeDatabase::_user_validation(const size_t index) const
+{
+	std::cout << "Is this the employee you are looking for?\n";
+	std::cout << "Yes(1)/No(2)";
+	print_employee(index);
+
+	int answer;
+	while (true)
+	{
+		std::cin >> answer;
+
+		if (answer == 1 || answer == 2)
+			return answer;
+		else
+			std::cout << "Invalid answer, try again\n";
+	}
+}
+
 // Check if the array needs to be resized
 // Double the size of the array using the _resize_database() method
 void EmployeeDatabase::_check_resize()
 {
-	if (data_base_size + 1 > data_base_capacity) {
+	if (database_size + 1 > database_capacity) {
 		this->_resize_database();
 	}
 }
@@ -129,13 +147,13 @@ void EmployeeDatabase::_check_resize()
 // Double the size of the DataBase array
 void EmployeeDatabase::_resize_database()
 {
-	Employee* old_data_base = data_base;
+	Employee* old_data_base = database;
 
-	data_base_capacity *= 2;
-	data_base = new Employee[data_base_capacity];
+	database_capacity *= 2;
+	database = new Employee[database_capacity];
 
-	for (size_t i = 0; i < data_base_size; i++) {
-		data_base[i] = std::move(old_data_base[i]);
+	for (size_t i = 0; i < database_size; i++) {
+		database[i] = std::move(old_data_base[i]);
 	}
 }
 
@@ -145,50 +163,70 @@ void EmployeeDatabase::_resize_database()
 // and perform low-level search with resumable support (using startIndex)
 
 // Search name
-void EmployeeDatabase::_search_by_name(const char* search_name, size_t& index)
+// If the name is found, return true and set the index to the found index
+// If the name is not found, return false and set the index to Err
+bool EmployeeDatabase::_search_by_name(const char* search_name, size_t& index)
 {
-	while (index < data_base_size) {
-		if (strcmp(data_base[index].name, search_name)) {
-			return;
-		}
+	while (index < database_size) {
+		if(strcmp(database[index].name, search_name) == 0)
+			return true;
+		
 		index++;
 	}
-	
+
+	index == Err;
+	return false;
+}
+
+// Search surname
+// If the surname is found, return true and set the index to the found index
+// If the surname is not found, return false and set the index to Err
+bool EmployeeDatabase::_search_by_surname(const char* search_name, size_t& index)
+{
+	while (index < database_size) {
+		if (strcmp(database[index].surname, search_name) == 0)
+			return true;
+
+		index++;
+	}
+
+	index == Err;
+	return false;
 }
 
 
 
 // --- Public methods ---
 // --- Constuctors ---
-EmployeeDatabase::EmployeeDatabase() : data_base(nullptr), data_base_size(0), data_base_capacity(0) {}
+EmployeeDatabase::EmployeeDatabase() : database(nullptr), database_size(0), database_capacity(0) {}
 
 EmployeeDatabase::EmployeeDatabase(const char* user_name) 
 	: EmployeeDatabase()
 {
-	data_base_capacity = 10;
-	data_base_size = 1;
-	data_base = new Employee[data_base_capacity];
-	data_base[0].name = _deep_copy(user_name);
+	database_capacity = 10;
+	database_size = 1;
+	database = new Employee[database_capacity];
+	database[0].name = _deep_copy(user_name);
 }
 
 EmployeeDatabase::EmployeeDatabase(const char* user_name, const char* user_surname)
 	: EmployeeDatabase(user_name)
 {
-	data_base[0].surname = _deep_copy(user_surname);
+	database[0].surname = _deep_copy(user_surname);
 }
 
 EmployeeDatabase::EmployeeDatabase(const char* user_name, const char* user_surname, int user_age)
 	: EmployeeDatabase(user_name, user_surname)
 {
-	data_base[0].age = _validate_age(user_age);
+	database[0].age = _validate_age(user_age);
 }
 
 // Copy constructor
 EmployeeDatabase::EmployeeDatabase(const EmployeeDatabase& other) 
-	: data_base_size(other.data_base_size), data_base_capacity(other.data_base_capacity)
+	: database_size(other.database_size), database_capacity(other.database_capacity)
 {
-	data_base = new Employee[other.data_base_capacity];
-	std::copy(other.data_base, other.data_base + data_base_size, data_base);
+	database = new Employee[other.database_capacity];
+	std::copy(other.database, other.database + database_size, database);
 }
 
 // Copy assignment operator
@@ -196,20 +234,20 @@ EmployeeDatabase::EmployeeDatabase(const EmployeeDatabase& other)
 EmployeeDatabase& EmployeeDatabase::operator=(const EmployeeDatabase& other)
 {
 	if (this != &other) {
-		if (data_base_capacity < other.data_base_capacity) {
-			delete[] data_base;
-			data_base_capacity = other.data_base_capacity;
-			data_base = new Employee[data_base_capacity];
+		if (database_capacity < other.database_capacity) {
+			delete[] database;
+			database_capacity = other.database_capacity;
+			database = new Employee[database_capacity];
 		}
 
-		data_base_size = other.data_base_size;
+		database_size = other.database_size;
 
-		for (size_t i = 0; i < other.data_base_size; i++) {
-			data_base[i] = other.data_base[i];
+		for (size_t i = 0; i < other.database_size; i++) {
+			database[i] = other.database[i];
 		}
 
-		for (size_t i = data_base_size; i < data_base_capacity; i++) {
-			data_base[i].clear();
+		for (size_t i = database_size; i < database_capacity; i++) {
+			database[i].clear();
 		}
 	}
 	return *this;
@@ -218,7 +256,7 @@ EmployeeDatabase& EmployeeDatabase::operator=(const EmployeeDatabase& other)
 // Destructor
 EmployeeDatabase::~EmployeeDatabase()
 {
-	delete[] data_base;
+	delete[] database;
 }
 
 
@@ -234,30 +272,30 @@ void EmployeeDatabase::add_employee(const char* user_name)
 {
 	if (user_name == nullptr) return;
 
-	data_base[data_base_size].name = _deep_copy(user_name);
+	database[database_size].name = _deep_copy(user_name);
 	_check_resize();
-	data_base_size++;
+	database_size++;
 }
 
 void EmployeeDatabase::add_employee(const char* user_name, const char* user_surname)
 {
 	if (user_name == nullptr || user_surname == nullptr) return;
 
-	data_base[data_base_size].name = _deep_copy(user_name);
-	data_base[data_base_size].surname = _deep_copy(user_surname);
+	database[database_size].name = _deep_copy(user_name);
+	database[database_size].surname = _deep_copy(user_surname);
 	_check_resize();
-	data_base_size++;
+	database_size++;
 }
 
 void EmployeeDatabase::add_employee(const char* user_name, const char* user_surname, const unsigned char user_age)
 {
 	if (user_name == nullptr || user_surname == nullptr) return;
 
-	data_base[data_base_size].name = _deep_copy(user_name);
-	data_base[data_base_size].surname = _deep_copy(user_surname);
-	data_base[data_base_size].age = _validate_age(user_age);
+	database[database_size].name = _deep_copy(user_name);
+	database[database_size].surname = _deep_copy(user_surname);
+	database[database_size].age = _validate_age(user_age);
 	_check_resize();
-	data_base_size++;
+	database_size++;
 }
 
 void EmployeeDatabase::add_employee(const char* user_name, const char* user_surname, const int user_age)
@@ -265,10 +303,102 @@ void EmployeeDatabase::add_employee(const char* user_name, const char* user_surn
 	add_employee(user_name, user_surname, static_cast<const unsigned char>(user_age));
 }
 
+
+// --- Setters ---
+
 // Change name by index
 void EmployeeDatabase::set_name(const char* user_name, const size_t index)
 {
 	if (user_name == nullptr) return;
-	delete[] data_base[index].name;
-	data_base[index].name = _deep_copy(user_name);
+	delete[] database[index].name;
+	database[index].name = _deep_copy(user_name);
+}
+
+void EmployeeDatabase::set_name(const char* user_name, const char* search_name)
+{
+	if (user_name == nullptr || search_name == nullptr) return;
+	size_t index = search_by_name(search_name);
+
+	if (index == Err) {
+		std::cout << "Employee not found\n";
+		return;
+	}
+
+	else
+		set_name(user_name, index);
+}
+
+// --- Getters ---
+
+// Get name by index
+char* EmployeeDatabase::get_name(const size_t index) const
+{
+	return _deep_copy(database[index].name);
+}
+
+// Get surname by index
+char* EmployeeDatabase::get_surname(const size_t index) const
+{
+	return _deep_copy(database[index].surname);
+}
+
+// Get age by index
+int EmployeeDatabase::get_age(const size_t index) const
+{
+	return static_cast<int>(database[index].age);
+}
+
+
+// --- Print ---
+
+// Print employee by index
+void EmployeeDatabase::print_employee(const size_t index) const
+{
+	std::cout << "Name: " << database[index].name << "\n";
+	std::cout << "Surname: " << database[index].surname << "\n";
+	std::cout << "Age: " << static_cast<int>(database[index].age) << "\n";
+}
+
+// Print all employees
+void EmployeeDatabase::print_database() const
+{
+	std::cout << "---------------------\n";
+	std::cout << "Total employees: " << database_size << "\n";
+	std::cout << "---------------------\n\n";
+	for (size_t i = 0; i < database_size; i++) {
+		print_employee(i);
+		std::cout << "---------------------\n\n";
+	}
+}
+
+
+// --- Search ---
+size_t EmployeeDatabase::search_by_name(const char* search_name)
+{
+	if (search_name == nullptr) return Err;
+	size_t index_result = 0;
+
+	while (_search_by_name(search_name, index_result)) {
+		int answer = _user_validation(index_result);
+
+		if (answer == 1)
+			return index_result;
+	}
+
+	return Err;
+}
+
+size_t EmployeeDatabase::search_by_surname(const char* search_surname)
+{
+	if (search_surname == nullptr) return Err;
+	size_t index_result = 0;
+
+	while (_search_by_surname(search_surname, index_result)) {
+		int answer = _user_validation(index_result);
+
+		if (answer == 1)
+			return index_result;
+	}
+
+	return Err;
 }

@@ -25,3 +25,28 @@ inline void resize_arr(char*& str, size_t& arr_capacity)
 	str = new_arr;
 	arr_capacity = new_size;
 }
+
+// Get string by one simbol
+// Must be nullptr, delete if str is not nullptr
+// Return by linl String and it capacity
+void get_str(char*& arr, size_t& length, size_t& capacity)
+{
+	delete[] arr;
+	length = 0;
+	capacity = 256;
+
+	arr = new char[capacity];
+	char ch;
+
+	while (std::cin.get(ch) && ch != '\n')
+	{
+		if (length >= capacity - 1)
+		{
+			resize_arr(arr, capacity);
+		}
+
+		arr[length++] = ch;
+	}
+
+	arr[length] = '\0';
+}
