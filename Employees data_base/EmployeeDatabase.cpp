@@ -88,6 +88,83 @@ void EmployeeDatabase::Employee::clear()
 	surname = nullptr;
 }
 
+// ------------------------------ MyString methods ------------------------------
+// Constructor
+EmployeeDatabase::MyString::MyString(const char* input_str)
+{
+	if (input_str == nullptr) {
+		str = nullptr;
+		length = 0;
+		capacity = 0;
+	}
+	else if (input_str[0] == '\0') {
+		str = new char[1];
+		str[0] = '\0';
+		length = 0;
+		capacity = 1;
+	}
+	else {
+		length = strlen(input_str);
+		capacity = length + 1;
+		str = new char[capacity];
+		memcpy(str, input_str, capacity);
+	}
+}
+
+// Copy constructor
+EmployeeDatabase::MyString::MyString(const MyString& other)
+{
+	length = other.length;
+	capacity = other.capacity;
+	str = new char[capacity];
+	memcpy(str, other.str, capacity);
+}
+
+// Copy assignment operator
+EmployeeDatabase::MyString& EmployeeDatabase::MyString::operator=(const MyString& other)
+{
+	if (this != &other) {
+		delete[] str;
+		length = other.length;
+		capacity = other.capacity;
+		str = new char[capacity];
+		memcpy(str, other.str, capacity);
+	}
+	return *this;
+}
+
+// Move constructor
+EmployeeDatabase::MyString::MyString(MyString&& other) noexcept
+{
+	str = other.str;
+	length = other.length;
+	capacity = other.capacity;
+	other.str = nullptr;
+	other.length = 0;
+	other.capacity = 0;
+}
+
+// Move assignment operator
+EmployeeDatabase::MyString& EmployeeDatabase::MyString::operator=(MyString&& other) noexcept
+{
+	if (this != &other) {
+		delete[] str;
+		str = other.str;
+		length = other.length;
+		capacity = other.capacity;
+		other.str = nullptr;
+		other.length = 0;
+		other.capacity = 0;
+	}
+	return *this;
+}
+
+// Destructor
+EmployeeDatabase::MyString::~MyString()
+{
+	delete[] str;
+}
+
 
 // ------------------------------- EmployeeDatabase methods -------------------------------
 // --- Private methods ---
@@ -135,7 +212,7 @@ bool EmployeeDatabase::_check_age(const unsigned char user_age) const
 bool EmployeeDatabase::_check_age(const int user_age) const
 {
 	if (user_age < 0)
-		return 0;
+		return false;
 
 	return _check_age(static_cast<const unsigned char>(user_age));
 }
@@ -152,9 +229,13 @@ int EmployeeDatabase::_user_validation(const size_t index) const
 	int answer;
 	while (true)
 	{
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		std::cin >> answer;
-
+		if (std::cin.fail()) {
+			std::cin.clear(); // clear the error flag
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard invalid input
+			std::cout << "Invalid input, try again\n";
+			continue;
+		}
 		if (answer == 1 || answer == 2)
 			return answer;
 		else
@@ -414,27 +495,27 @@ void EmployeeDatabase::set_age(const unsigned char user_age, const char* search_
 		set_age(user_age, index);
 }
 
-void EmployeeDatabase::set_age(const int user_age, const char* search_name)
+void EmployeeDatabase::set_age(const int user_age, const char* search_surname)
 {
-	set_age(static_cast<const unsigned char>(user_age), search_name);
+	set_age(static_cast<const unsigned char>(user_age), search_surname);
 }
 
 // --- Getters ---
 
 // Get name by index
 // If the index is out of range, return nullptr
-char* EmployeeDatabase::get_name(const size_t index) const
+EmployeeDatabase::MyString EmployeeDatabase::get_name(const size_t index) const
 {
-	if (index >= database_size) return nullptr;
-	return _deep_copy(database[index].name);
+	if (index >= database_size) return MyString();
+	return MyString(database[index].name);
 }
 
 // Get surname by index
 // If the index is out of range, return nullptr
-char* EmployeeDatabase::get_surname(const size_t index) const
+EmployeeDatabase::MyString EmployeeDatabase::get_surname(const size_t index) const
 {
-	if (index >= database_size) return nullptr;
-	return _deep_copy(database[index].surname);
+	if (index >= database_size) return MyString();
+	return MyString(database[index].surname);
 }
 
 // Get age by index

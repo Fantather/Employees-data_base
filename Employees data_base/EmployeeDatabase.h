@@ -41,68 +41,20 @@ class EmployeeDatabase{
 		size_t length;
 		size_t capacity;
 
+		// Constructors
 		MyString() : str(nullptr), length(0), capacity(0) {}
-		MyString(const char* input_str)
-		{
-			if (input_str == nullptr) {
-				MyString();
-			}
-			else {
-				length = strlen(input_str);
-				capacity = length + 1;
-				str = new char[capacity];
-				memcpy(str, input_str, capacity);
-			}
-		}
+		MyString(const char* input_str);
 
-		MyString(const MyString& other)
-		{
-			length = other.length;
-			capacity = other.capacity;
-			str = new char[capacity];
-			memcpy(str, other.str, capacity);
-		}
+		// Copy constructor and assignment operator
+		MyString(const MyString& other);
+		MyString& operator=(const MyString& other);
 
-		MyString& operator=(const MyString& other)
-		{
-			if (this != &other) {
-				delete[] str;
-				length = other.length;
-				capacity = other.capacity;
-				str = new char[capacity];
-				memcpy(str, other.str, capacity);
-			}
-			return *this;
-		}
-
-		MyString(MyString&& other) noexcept
-		{
-			str = other.str;
-			length = other.length;
-			capacity = other.capacity;
-			other.str = nullptr;
-			other.length = 0;
-			other.capacity = 0;
-		}
-
-		MyString& operator=(MyString&& other) noexcept
-		{
-			if (this != &other) {
-				delete[] str;
-				str = other.str;
-				length = other.length;
-				capacity = other.capacity;
-				other.str = nullptr;
-				other.length = 0;
-				other.capacity = 0;
-			}
-			return *this;
-		}
-
-		~MyString()
-		{
-			delete[] str;
-		}
+		// Move constructor and assignment operator
+		MyString(MyString&& other) noexcept;
+		MyString& operator=(MyString&& other) noexcept;
+		
+		// Destructor
+		~MyString();
 	};
 
 
@@ -161,8 +113,8 @@ public:
 	void set_age(const int user_age, const char* search_surname);
 
     // Getters
-    char* get_name(const size_t index) const;
-    char* get_surname(const size_t index) const;
+	MyString get_name(const size_t index) const;
+	MyString get_surname(const size_t index) const;
     int get_age(const size_t index) const;
 
     // Print
