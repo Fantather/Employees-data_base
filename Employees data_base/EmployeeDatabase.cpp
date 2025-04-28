@@ -120,6 +120,8 @@ void EmployeeDatabase::Employee::clear()
 	surname = nullptr;
 }
 
+
+
 // ------------------------------ MyString methods ------------------------------
 // Constructor
 EmployeeDatabase::MyString::MyString(const char* input_str)

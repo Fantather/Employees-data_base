@@ -1,9 +1,11 @@
 #include "EmployeeDatabase.h"
 #include "work_with_array.h"
 #include "work_with_file.h"
+using namespace std;
 
 int main() {
-
+	const char* file_name = "employees.txt";
+	
 }
 
 //Задание

@@ -28,7 +28,7 @@ inline void resize_arr(char*& str, size_t& arr_capacity)
 
 // Get string by one simbol
 // Must be nullptr, delete if str is not nullptr
-// Return by linl String and it capacity
+// Return pointer to the new string, it length and capacity
 void get_str(char*& arr, size_t& length, size_t& capacity)
 {
 	delete[] arr;
