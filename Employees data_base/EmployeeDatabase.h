@@ -6,7 +6,6 @@
 #include <limits>	  // numeric_limits
 #include <cstdio>     // FILE*, fopen, fwrite, fread, fclose
 
-#define Err static_cast<size_t>(-1)     // For invalid returns
 constexpr auto DEFAULT_CHILD_AGE = 7;
 constexpr auto DEFAULT_DATABASE_CAPACITY = 5;
 
@@ -44,12 +43,12 @@ class EmployeeDatabase{
 
 	struct MyString
 	{
-		char* str;
 		size_t length;
 		size_t capacity;
+		char* str;
 
 		// Constructors
-		MyString() : str(nullptr), length(0), capacity(0) {}
+		MyString() : length(0), capacity(0), str(nullptr) {}
 		MyString(const char* input_str);
 
 		// Copy constructor and assignment operator
@@ -70,6 +69,7 @@ private:
 	size_t database_size;
 	size_t database_capacity;
     Employee* database;
+	static constexpr size_t Err = static_cast<size_t>(-1);     // For invalid returns
 
 	// --- Private methods ---
 	static char* _deep_copy(const char* input_str);              // Deep copy of a string

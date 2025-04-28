@@ -255,7 +255,7 @@ bool EmployeeDatabase::_check_age(const int user_age) const
 int EmployeeDatabase::_user_validation(const size_t index) const
 {
 	std::cout << "Is this the employee you are looking for?\n";
-	std::cout << "Yes(1)/No(2)";
+	std::cout << "Yes(1)/No(2)\n";
 	print_employee(index);
 
 	int answer;
@@ -706,6 +706,7 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 		return false;
 	}
 
+
 	// Save obj from Database
 	for (size_t i = 0; i < database_size; i++)
 	{
@@ -713,11 +714,11 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 		size_t name_len = database[i].name ? strlen(database[i].name) : 0;
 
 		// Save length of name. Return false if the name is not nullptr and Save was not successful 
-		if (name_len > 0 && !_check_save(fwrite(&name_len, sizeof(size_t), 1, file), 1, file, "Length name save")) {
+		if (!_check_save(fwrite(&name_len, sizeof(size_t), 1, file), 1, file, "Length name save")) {
 			return false;
 		}
 
-		if (!_check_save(fwrite(database[i].name, sizeof(char), name_len, file), name_len, file, "Name save")) {
+		if (name_len > 0 && !_check_save(fwrite(database[i].name, sizeof(char), name_len, file), name_len, file, "Name save")) {
 			return false;
 		}
 
@@ -726,11 +727,11 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 		size_t surname_len = database[i].surname ? strlen(database[i].surname) : 0;
 
 		// Save length of surname
-		if (surname_len > 0 && !_check_save(fwrite(&surname_len, sizeof(size_t), 1, file), 1, file, "Length surname save")) {
+		if (!_check_save(fwrite(&surname_len, sizeof(size_t), 1, file), 1, file, "Length surname save")) {
 			return false;
 		}
 
-		if (!_check_save(fwrite(database[i].surname, sizeof(char), surname_len, file), name_len, file, "Surname save")) {
+		if (surname_len > 0 && !_check_save(fwrite(database[i].surname, sizeof(char), surname_len, file), surname_len, file, "Surname save")) {
 			return false;
 		}
 
@@ -748,7 +749,7 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 bool EmployeeDatabase::load_from_file(const char* file_name)
 {
 	FILE* file = nullptr;
-	if (fopen_s(&file, file_name, "wr") != 0) {
+	if (fopen_s(&file, file_name, "rb") != 0) {
 		std::cerr << "\nInvalid open file to read\n";
 		return false;
 	}
@@ -777,6 +778,7 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 	}
 
 
+
 	// Load Employees
 	for (size_t i = 0; i < database_size; i++)
 	{
@@ -792,7 +794,7 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 		{
 			database[i].name = new char[name_len + 1];
 
-			if (!_check_load(fread(&database[i].name, sizeof(char), name_len, file), name_len, file, "Load employee.name")) {
+			if (!_check_load(fread(database[i].name, sizeof(char), name_len, file), name_len, file, "Load employee.name")) {
 				return false;
 			}
 
@@ -803,6 +805,7 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 		{
 			database[i].name = nullptr;
 		}
+
 
 		// Load length of surname
 		size_t surname_len;
@@ -816,12 +819,18 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 		{
 			database[i].surname = new char[surname_len + 1];
 
-			if (!_check_load(fread(&database[i].surname, sizeof(char), surname_len, file), surname_len, file, "Load employee.surname")) {
+			if (!_check_load(fread(database[i].surname, sizeof(char), surname_len, file), surname_len, file, "Load employee.surname")) {
 				return false;
 			}
 
 			database[i].surname[surname_len] = '\0';
 		}
+
+		else 
+		{
+			database[i].surname = nullptr;
+		}
+
 
 		// Load age
 		if (!_check_load(fread(&database[i].age, sizeof(database[i].age), 1, file), 1, file, "Load employee.age")) {
