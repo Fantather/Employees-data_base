@@ -14,7 +14,7 @@ class EmployeeDatabase{
 	bool _check_save(size_t written, size_t expected, FILE* file, const char* what) const; // Check if the data is written correctly
 	bool _check_load(size_t read, size_t expected, FILE* file, const char* what) const; // Check if the data is read correctly
 
-	// ------------------- Struct -----------------
+	// ------------------- Employee -----------------
     struct Employee {
         char* surname;
         char* name;
@@ -41,6 +41,7 @@ class EmployeeDatabase{
         void clear();
     };
 
+	// ------------------- MyString -----------------
 	struct MyString
 	{
 		size_t length;
@@ -51,6 +52,9 @@ class EmployeeDatabase{
 		MyString() : length(0), capacity(0), str(nullptr) {}
 		MyString(const char* input_str);
 
+		// Destructor
+		~MyString();
+
 		// Copy constructor and assignment operator
 		MyString(const MyString& other);
 		MyString& operator=(const MyString& other);
@@ -58,9 +62,12 @@ class EmployeeDatabase{
 		// Move constructor and assignment operator
 		MyString(MyString&& other) noexcept;
 		MyString& operator=(MyString&& other) noexcept;
-		
-		// Destructor
-		~MyString();
+
+		// Get string by one simbol
+		void input_str();		
+
+		// Resize string double
+		void resize_str_();
 	};
 
 
@@ -79,6 +86,7 @@ private:
 	bool _check_age(const unsigned char user_age) const;          // Check if the age is valid
 	bool _check_age(const int user_age) const;
 	int _user_validation(const size_t index) const;     // Get user answer
+	void _clear_cin();            // Clear cin buffer
     
 	void _check_resize();       // Check if the array needs to be resized
 	void _resize_database();    // Double the size of the DataBase array
@@ -123,6 +131,7 @@ public:
 	MyString get_name(const size_t index) const;
 	MyString get_surname(const size_t index) const;
     int get_age(const size_t index) const;
+	const size_t get_size() const; // Get size of the database
 
     // Print
 	void print_employee(const size_t index) const;          // Print employee by index
@@ -137,6 +146,7 @@ public:
 	// --- Interface methods ---
     size_t search_by_name(const char* search_name);
     size_t search_by_surname(const char* search_surname);
+	void my_interface();		// Interface for user
 
 	// --- Save and load ---
 	bool save_to_file(const char* file_name) const; // Save all employees to file

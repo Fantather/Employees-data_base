@@ -145,6 +145,12 @@ EmployeeDatabase::MyString::MyString(const char* input_str)
 	}
 }
 
+// Destructor
+EmployeeDatabase::MyString::~MyString()
+{
+	delete[] str;
+}
+
 // Copy constructor
 EmployeeDatabase::MyString::MyString(const MyString& other)
 {
@@ -204,11 +210,38 @@ EmployeeDatabase::MyString& EmployeeDatabase::MyString::operator=(MyString&& oth
 	return *this;
 }
 
-// Destructor
-EmployeeDatabase::MyString::~MyString()
+// Get string by one simbol
+void EmployeeDatabase::MyString::input_str() 
 {
 	delete[] str;
+	length = 0;
+	capacity = 25;
+	str = new char[capacity];
+	char ch;
+	while (std::cin.get(ch) && ch != '\n')
+	{
+		resize_str_();
+		str[length++] = ch;
+	}
+	str[length] = '\0';
 }
+
+void EmployeeDatabase::MyString::resize_str_()
+{
+	if (length < capacity - 1) return; // No need to resize
+
+	size_t new_capacity = capacity * 2;
+	char* new_str = new char[new_capacity];
+
+	memcpy(new_str, str, length + 1);
+
+	delete[] str;
+	str = new_str;
+	capacity = new_capacity;
+}
+
+
+
 
 
 // ------------------------------- EmployeeDatabase methods -------------------------------
@@ -286,6 +319,17 @@ int EmployeeDatabase::_user_validation(const size_t index) const
 		else
 			std::cout << "Invalid answer, try again\n";
 	}
+}
+
+// Clear cin buffer
+void EmployeeDatabase::_clear_cin()
+{
+	if (std::cin.fail()) {
+		std::cin.clear(); // clear the error flag
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard invalid input
+	}
+	else
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard valid input
 }
 
 
@@ -576,6 +620,9 @@ int EmployeeDatabase::get_age(const size_t index) const
 	return static_cast<int>(database[index].age);
 }
 
+// Get database size
+const size_t EmployeeDatabase::get_size() const { return database_size; }
+
 
 // --- Print ---
 
@@ -693,10 +740,147 @@ size_t EmployeeDatabase::search_by_surname(const char* search_surname)
 	return Err;
 }
 
+// Method speak with user and ask for confirmation using _user_validation() method and for search using _search_by_age()
+void EmployeeDatabase::my_interface()
+{
+	std::cout << "\n\n---------------------\n\n";
+	int answer = 0;
+
+	while (true)
+	{
+		// Print menu
+		std::cout << "Menu:\n";
+		std::cout << "1. Search employee by name\n";
+		std::cout << "2. Search employee by surname\n";
+		std::cout << "3. Search employee by index\n";
+		std::cout << "4. Add employee\n\n";
+
+		std::cout << "5. Change employee name by index\n";
+		std::cout << "6. Change employee surname by index\n";
+		std::cout << "7. Change employee age by index\n";
+		std::cout << "8. Change employee name by surname\n";
+		std::cout << "9. Change employee surname by surname\n";
+		std::cout << "10. Change employee age by surname\n\n";
+
+		std::cout << "11. Print all employees\n";
+		std::cout << "12. Print employees by age\n";
+		std::cout << "13. Print employees by first letter of surname\n";
+
+		std::cout << "14. Save database to file\n\n";
+
+		std::cout << "15. delete employee by index\n\n";
+
+		std::cout << "0. Exit";
+		std::cout << "\n\n---------------------\n\n";
+
+		// Get user answer
+		std::cout << "Enter your choice: ";
+		std::cin >> answer;
+		if (std::cin.fail()) {
+			std::cin.clear(); // clear the error flag
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // discard invalid input
+			std::cout << "Invalid input, try again\n";
+			continue;
+		}
+
+		switch (answer)
+		{
+		case 1: 
+		{
+			size_t index_name;
+			std::cout << "Enter employee name: ";
+			char name[100];
+			std::cin >> name;
+			index_name = search_by_name(name);
+
+			if (index_name == Err) {
+				std::cout << "\nEmployee not found\n\n";
+			}
+			else {
+				std::cout << "\nEmployee with index " << index_name << " :\n";
+				print_employee(index_name);
+			}
+			break;
+		}
+
+		case 2:
+		{
+			size_t index_surname;
+			std::cout << "Enter employee surname: ";
+			char surname[100];
+			std::cin >> surname;
+			index_surname = search_by_surname(surname);
+
+			if (index_surname == Err) {
+				std::cout << "\nEmployee not found\n\n";
+			}
+			else {
+				std::cout << "\nEmployee with index " << index_surname << " :\n";
+				print_employee(index_surname);
+			}
+			break;
+		}
+
+		case 3:{
+			std::cout << "Enter employee index: ";
+			size_t index;
+			std::cin >> index;
+
+			if (index >= database_size) {
+				std::cout << "\nEmployee not found\n\n";
+			}
+			else {
+				std::cout << "\nEmployee with index " << index << " :\n";
+				print_employee(index);
+			}
+			break;
+		}
+
+		case 4:
+		{
+			std::cout << "Enter employee name: ";
+			MyString input_name;
+			input_name.input_str();
+		    
+			std::cout << "Enter employee surname: ";
+			MyString input_surname;
+			input_surname.input_str();
+
+			std::cout << "Enter employee age: ";
+			int input_age;
+			std::cin >> input_age;
+			_clear_cin();
+
+			add_employee(input_name.str, input_surname.str, input_age);
+			break;
+		}
+
+		case 5:
+		{
+			std::cout << "Enter employee index: ";
+			size_t index_name;
+			std::cin >> index_name;
+			if (index_name >= database_size) {
+				std::cout << "\nEmployee not found\n\n";
+			}
+			else {
+				std::cout << "Enter new employee name: ";
+				MyString input_name;
+				input_name.input_str();
+				set_name(input_name.str, index_name);
+			}
+			break;
+		}
+
+		}
+	}
+}
+
 
 // --- Save and load ---
 
-// 
+// Save the database to a file
+// If the file is not opened, return false and close the file
 bool EmployeeDatabase::save_to_file(const char* file_name) const
 {
 	FILE* file = nullptr;
@@ -719,7 +903,6 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 		return false;
 	}
 
-
 	// Save obj from Database
 	for (size_t i = 0; i < database_size; i++)
 	{
@@ -735,7 +918,6 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 			return false;
 		}
 
-
 		// Save Employee surname
 		size_t surname_len = database[i].surname ? strlen(database[i].surname) : 0;
 
@@ -748,7 +930,6 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 			return false;
 		}
 
-
 		// Save Employee age
 		if (!_check_save(fwrite(&database[i].age, sizeof(database[i].age), 1, file), 1, file, "Age save")) {
 			return false;
@@ -759,12 +940,28 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 	return true;
 }
 
+
+// Load the database from a file
+// If the file is not opened, return false and close the file
+// If the file is empty, return true and create deafault database
 bool EmployeeDatabase::load_from_file(const char* file_name)
 {
 	FILE* file = nullptr;
 	if (fopen_s(&file, file_name, "rb") != 0) {
 		std::cerr << "\nInvalid open file to read\n";
 		return false;
+	}
+
+	// Check if the file is empty
+	fseek(file, 0, SEEK_END);
+	size_t file_size = ftell(file);
+	rewind(file);
+
+	if (file_size == 0) {
+		database_size = 0;
+		database_capacity = DEFAULT_DATABASE_CAPACITY;
+		fclose(file);
+		return true;
 	}
 
 	// Load database_size
@@ -789,8 +986,6 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 			database[i].clear();
 		}
 	}
-
-
 
 	// Load Employees
 	for (size_t i = 0; i < database_size; i++)
@@ -818,7 +1013,6 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 		{
 			database[i].name = nullptr;
 		}
-
 
 		// Load length of surname
 		size_t surname_len;
