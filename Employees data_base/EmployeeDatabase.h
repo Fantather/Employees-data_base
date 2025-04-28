@@ -1,13 +1,19 @@
 #pragma once
 #include <iostream>
-#include <cstring>	//memcpy, strcpy_s, strcmp
-#include <algorithm> // copy, min
-#include <utility>  // move
+#include <cstring>	  //memcpy, strcpy_s, strcmp, strlen
+#include <algorithm>  // copy, max
+#include <utility>    // move
+#include <limits>	  // numeric_limits
+#include <cstdio>     // FILE*, fopen, fwrite, fread, fclose
 
 #define Err static_cast<size_t>(-1)     // For invalid returns
 constexpr auto DEFAULT_CHILD_AGE = 7;
 
 class EmployeeDatabase{
+	// --- Check save and load Database ---
+	bool _check_save(size_t written, size_t expected, FILE* file, const char* what) const; // Check if the data is written correctly
+	bool _check_read(size_t read, size_t expected, FILE* file, const char* what) const; // Check if the data is read correctly
+
 	// ------------------- Struct -----------------
     struct Employee {
         char* surname;
@@ -66,6 +72,7 @@ private:
 
 	// --- Private methods ---
 	static char* _deep_copy(const char* input_str);              // Deep copy of a string
+
     static unsigned char _validate_age(const unsigned char user_age);  // Check if the age is valid for initialize Employees
     static unsigned char _validate_age(const int user_age);
 	bool _check_age(const unsigned char user_age) const;          // Check if the age is valid
@@ -76,7 +83,6 @@ private:
 	void _resize_database();    // Double the size of the DataBase array
 
     // --- Internal search helpers ---
-
     bool _search_by_name(const char* search_name, size_t& index);
     bool _search_by_surname(const char* search_name, size_t& index);
 
@@ -130,5 +136,8 @@ public:
 	// --- Interface methods ---
     size_t search_by_name(const char* search_name);
     size_t search_by_surname(const char* search_surname);
+
+	// --- Save and load ---
+	bool save_to_file(const char* file_name) const; // Save all employees to file
     
 };

@@ -1,6 +1,38 @@
 #include "EmployeeDatabase.h"
+// ----------- save and load Database --------------
 
-// --------------------- EmployeeDatabase methods -------------------------------
+// Check if the data is written correctly
+// Return "true" if the data is written correctly, close the file and return "false" if not
+// Must be announcer earlier than the other methods
+// Expected the number of elements that was written in the file, that was expected to be written, ptr to file, and what was written
+bool EmployeeDatabase::_check_save(size_t written, size_t expected, FILE* file, const char* what) const
+{
+	if (written != expected) {
+		std::cerr << "\nError writing to file while saving " << what << "\n";
+		fclose(file);
+		return false;
+	}
+
+	return true;
+}
+
+// Check if the data is read correctly
+// Return "true" if the data is read correctly, close the file and return "false" if not
+// Must be announcer earlier than the other methods
+// Expected the number of elements that was read from the file, that was expected to be read, ptr to file, and what was read
+bool EmployeeDatabase::_check_read(size_t read, size_t expected, FILE* file, const char* what) const
+{
+	if (read != expected) {
+		std::cerr << "\nError reading from file while loading " << what << "\n";
+		fclose(file);
+		return false;
+	}
+	return true;
+}
+
+
+
+// --------------------- Employee methods -------------------------------
 // --- Constructors and assignment operator ---
 EmployeeDatabase::Employee::Employee() : surname(nullptr), name(nullptr), age(0) {}
 
@@ -243,6 +275,9 @@ int EmployeeDatabase::_user_validation(const size_t index) const
 	}
 }
 
+
+
+
 // Check if the array needs to be resized
 // Double the size of the array using the _resize_database() method
 void EmployeeDatabase::_check_resize()
@@ -275,6 +310,7 @@ void EmployeeDatabase::_resize_database()
 // Search name
 // If the name is found, return true and set the index to the found index
 // If the name is not found, return false and set the index to Err
+// Nullptr check is done in the public interface method search_by_name()
 bool EmployeeDatabase::_search_by_name(const char* search_name, size_t& index)
 {
 	while (index < database_size) {
@@ -291,6 +327,7 @@ bool EmployeeDatabase::_search_by_name(const char* search_name, size_t& index)
 // Search surname
 // If the surname is found, return true and set the index to the found index
 // If the surname is not found, return false and set the index to Err
+// Nullptr check is done in the public interface method search_by_surname()
 bool EmployeeDatabase::_search_by_surname(const char* search_name, size_t& index)
 {
 	while (index < database_size) {
@@ -410,7 +447,7 @@ void EmployeeDatabase::add_employee(const char* user_name, const char* user_surn
 {
 	if (user_age < 0)
 	{
-		add_employee(user_name, user_surname, static_cast<unsigned char>(DEFAULT_CHILD_AGE));
+		add_employee(user_name, user_surname, static_cast<unsigned char>(0));
 		return;
 	}
 	add_employee(user_name, user_surname, static_cast<const unsigned char>(user_age));
@@ -600,6 +637,11 @@ void EmployeeDatabase::delete_employee(const size_t index)
 
 
 // --- Search ---
+
+// Method speak with user and ask for confirmation using _user_validation() method and for search using _search_by_name()
+// If the name is found, return the index
+// If the name is not found, return Err
+// If the name is nullptr, return Err
 size_t EmployeeDatabase::search_by_name(const char* search_name)
 {
 	if (search_name == nullptr) return Err;
@@ -617,6 +659,10 @@ size_t EmployeeDatabase::search_by_name(const char* search_name)
 	return Err;
 }
 
+// Method speak with user and ask for confirmation using _user_validation() method and for search using _search_by_surname()
+// If the surname is found, return the index
+// If the surname is not found, return Err
+// If the surname is nullptr, return Err
 size_t EmployeeDatabase::search_by_surname(const char* search_surname)
 {
 	if (search_surname == nullptr) return Err;
@@ -632,4 +678,64 @@ size_t EmployeeDatabase::search_by_surname(const char* search_surname)
 	}
 
 	return Err;
+}
+
+
+// --- Save and load ---
+
+// 
+bool EmployeeDatabase::save_to_file(const char* file_name) const
+{
+	FILE* file = nullptr;
+	if (fopen_s(&file, file_name, "wb") != 0)
+	{
+		std::cerr << "\nOpen file error\n";
+		return false;
+	}
+
+	// Save database_size
+	if (fwrite(&database_size, sizeof(size_t), 1, file) != 1)
+	{
+		fclose(file);
+		std::cerr << "\nWrite database_size error\n";
+		return false;
+	}
+
+	// Save obj from Database
+	for (size_t i = 0; i < database_size; i++)
+	{
+		// Save Employee name
+		size_t name_len = database[i].name ? strlen(database[i].name) : 0;
+
+		// Save length of name. Return false if the name is not nullptr and Save was not successful 
+		if (name_len > 0 && !_check_save(fwrite(&name_len, sizeof(size_t), 1, file), 1, file, "Length name save")) {
+			return false;
+		}
+
+		if (!_check_save(fwrite(database[i].name, sizeof(char), name_len, file), name_len, file, "Name save")) {
+			return false;
+		}
+
+
+		// Save Employee surname
+		size_t surname_len = database[i].surname ? strlen(database[i].surname) : 0;
+
+		// Save length of surname
+		if (surname_len > 0 && !_check_save(fwrite(&surname_len, sizeof(size_t), 1, file), 1, file, "Length surname save")) {
+			return false;
+		}
+
+		if (!_check_save(fwrite(database[i].surname, sizeof(char), surname_len, file), name_len, file, "Surname save")) {
+			return false;
+		}
+
+
+		// Save Employee age
+		if (!_check_save(fwrite(&database[i].age, sizeof(database[i].age), 1, file), 1, file, "Age save")) {
+			return false;
+		}
+	}
+
+	fclose(file);
+	return true;
 }
