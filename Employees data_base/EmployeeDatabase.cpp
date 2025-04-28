@@ -1116,7 +1116,9 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 
 // Load the database from a file
 // If the file is not opened, return false and close the file
-// If the file is empty, return true and create deafault database
+// If the file is empty, return false
+// If the database_capacity is more than the default capacity, delete the old array and create a new one
+// Else clear the old array using the clear() method of the Employee struct
 bool EmployeeDatabase::load_from_file(const char* file_name)
 {
 	FILE* file = nullptr;
@@ -1131,10 +1133,9 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 	rewind(file);
 
 	if (file_size == 0) {
-		database_size = 0;
-		database_capacity = DEFAULT_DATABASE_CAPACITY;
+		std::cerr << "\nError file is empty\n";
 		fclose(file);
-		return true;
+		return false;
 	}
 
 	// Load database_size
@@ -1147,8 +1148,7 @@ bool EmployeeDatabase::load_from_file(const char* file_name)
 		return false;
 	}
 
-	// If the database_capacity is more than the default capacity, delete the old array and create a new one
-	// Else clear the old array using the clear() method of the Employee struct
+	// Create DataBase
 	if (database_capacity > DEFAULT_DATABASE_CAPACITY) {
 		delete[] database;
 		database = new Employee[database_capacity];
