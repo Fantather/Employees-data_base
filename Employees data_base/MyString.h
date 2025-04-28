@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <cstring>	  //memcpy, strcpy_s, strcmp, strlen
+#include <utility>    // move
 
 class MyString
 {
@@ -9,19 +10,21 @@ private:
 	size_t capacity;
 	char* str;
 
+	void resize_str_();		// Resize string double
+
 public:
 	// Constructors
-	MyString();
-	MyString(const char* input_str);
-
-	// Copy constructor and assignment operator
-	MyString(const MyString& other);
-	MyString& operator=(const MyString& other);
-
-	// Move constructor and assignment operator
-	MyString(MyString&& other) noexcept;
-	MyString& operator=(MyString&& other) noexcept;
+	MyString();									// Default constructor
+	MyString(const char* c_str);				// Constructor with c-string
+	MyString(const MyString& other);			// Copy constructor
+	MyString(MyString&& other) noexcept;		// Move constructor
 
 	// Destructor
 	~MyString();
+
+	// Copy and move assignment operators
+	MyString& operator=(const MyString& other);
+	MyString& operator=(MyString&& other) noexcept;
+
+	void input_str();		// Get string by one simbol
 };

@@ -1,23 +1,41 @@
 #include "MyString.h"
 
-// Constructor
-MyString::MyString() : length(0), capacity(1), str(new char[capacity]) {
-	str[0] = '\0';
+
+// Resize string double
+void MyString::resize_str_()
+{
+	if (length < capacity - 1) return; // No need to resize
+
+	size_t new_capacity = capacity * 2;
+	char* new_str = new char[new_capacity];
+
+	memcpy(new_str, str, capacity);
+
+	delete[] str;
+	str = new_str;
+	capacity = new_capacity;
 }
 
-MyString::MyString(const char* input_str)
+// Default constructor
+MyString::MyString() : length(0), capacity(1), str(new char[capacity]()) {}
+
+// Constructor with c-string
+MyString::MyString(const char* c_str)
 {
-	if (input_str == nullptr) {
+	if (c_str == nullptr)
+	{
 		str = new char[1];
 		str[0] = '\0';
 		length = 0;
 		capacity = 1;
 	}
-	else {
-		length = strlen(input_str);
+
+	else
+	{
+		length = strlen(c_str);
 		capacity = length + 1;
 		str = new char[capacity];
-		memcpy(str, input_str, capacity);
+		memcpy(str, c_str, capacity);
 	}
 }
 
@@ -30,40 +48,40 @@ MyString::MyString(const MyString& other)
 	memcpy(str, other.str, capacity);
 }
 
-// Copy assignment operator
-MyString& MyString::operator=(const MyString& other)
-{
-	if (this != &other) {
-		delete[] str;
-
-		if (other.str)
-		{
-			length = other.length;
-			capacity = other.capacity;
-			str = new char[capacity];
-			memcpy(str, other.str, capacity);
-		}
-
-		else
-		{
-			str = nullptr;
-			length = 0;
-			capacity = 0;
-		}
-	}
-	return *this;
-}
-
 // Move constructor
 MyString::MyString(MyString&& other) noexcept
 {
 	str = other.str;
 	length = other.length;
 	capacity = other.capacity;
-	other.str = nullptr;
+
+	other.str = new char[1];
 	other.length = 0;
-	other.capacity = 0;
+	other.capacity = 1;
+	other.str[0] = '\0';
 }
+
+// Destructor
+MyString::~MyString()
+{
+	delete[] str;
+}
+
+// Copy assignment operator
+MyString& MyString::operator=(const MyString& other)
+{
+	if (this != &other) {
+		delete[] str;
+
+		length = other.length;
+		capacity = other.capacity;
+		str = new char[capacity];
+		memcpy(str, other.str, capacity);
+	}
+	return *this;
+}
+
+
 
 // Move assignment operator
 MyString& MyString::operator=(MyString&& other) noexcept
@@ -72,6 +90,7 @@ MyString& MyString::operator=(MyString&& other) noexcept
 		delete[] str;
 		str = other.str;
 		length = other.length;
+
 		capacity = other.capacity;
 		other.str = nullptr;
 		other.length = 0;
@@ -80,8 +99,17 @@ MyString& MyString::operator=(MyString&& other) noexcept
 	return *this;
 }
 
-// Destructor
-MyString::~MyString()
+void MyString::input_str()
 {
 	delete[] str;
+	length = 0;
+	capacity = 256;
+	str = new char[capacity];
+	char ch;
+	while (std::cin.get(ch) && ch != '\n')
+	{
+		resize_str_();
+		str[length++] = ch;
+	}
+	str[length] = '\0';
 }

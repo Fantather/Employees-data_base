@@ -129,11 +129,13 @@
   <ItemGroup>
     <ClCompile Include="EmployeeDatabase.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyString.cpp" />
     <ClCompile Include="work_with_array.cpp" />
     <ClCompile Include="work_with_file.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EmployeeDatabase.h" />
+    <ClInclude Include="MyString.h" />
     <ClInclude Include="work_with_array.h" />
     <ClInclude Include="work_with_array.hpp" />
     <ClInclude Include="work_with_file.h" />
