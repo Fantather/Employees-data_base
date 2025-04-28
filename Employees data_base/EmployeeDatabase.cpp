@@ -785,7 +785,7 @@ void EmployeeDatabase::my_interface()
 
 		switch (answer) {
 
-		// Print all employees
+			// Print all employees
 		case 1:
 		{
 			size_t index_name;
@@ -839,7 +839,7 @@ void EmployeeDatabase::my_interface()
 			break;
 		}
 
-		// Add employee
+			  // Add employee
 		case 4:
 		{
 			std::cout << "Enter employee name: ";
@@ -1040,12 +1040,11 @@ void EmployeeDatabase::my_interface()
 		}
 
 		// Exit
-		case 0:
+		case 0: {
 			std::cout << "\nGoodbye!\n";
 			save_to_file(DEFAULT_FILE_NAME);
 			return;
 		}
-
 		}
 	}
 }

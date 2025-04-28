@@ -2,7 +2,15 @@
 #include "work_with_array.h"
 #include "work_with_file.h"
 #include "MyString.h"
+
+#include <chrono>
+#include <thread>
+
 using namespace std;
+
+void sleep() {
+	std::this_thread::sleep_for(std::chrono::seconds(2));  // Пауза 2 секунды
+}
 
 // То что вместо собственноручного string можно возвращать Константный значения я понял уже когда написал её
 
@@ -25,17 +33,93 @@ int main() {
 		db.add_employee("Charlie", "Davis", 40);
 		db.add_employee("Eve", "Wilson", 22);
 		db.add_employee("Frank", "Garcia", 29);
-		db.add_employee("Grace", "Martinez", 31);
-		db.add_employee("Hannah", "Lopez", 27);
+		db.add_employee("Grace", "Martinez", 33);
+		db.add_employee("Hannah", "Soprano", 33);
 		db.add_employee("Isaac", "Gonzalez", 33);
 	}
+	sleep();
 
 	cout << "Size of the database: " << db.get_size() << endl;
 	db.print_database();
 
-	cout << "---------------------\n";
+	sleep();
+	sleep();
 
+	cout << "\n---------------------\n";
+	cout << "Automithed actions\n";
+	cout << "---------------------\n\n";
 
+	cout << "1. Search employee by name John (Yes)\n\n";
+	size_t index_name = db.search_by_name("John");
+	cout << "\nChange his name to \"Jack\"\n\n";
+	db.set_name("Jack", index_name);
+	db.print_employee(index_name);
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n2. Search employee by surname Doe and Change his surname to \"Smith\"\n (Yes)\n\n";
+	db.set_surname("Smith", "Doe");
+
+	cout << "\n---------------------\n";
+	cout << "\n3. Add employee\n";
+	db.add_employee("Michael", "Brown", 28);
+	cout << "We added:\n";
+	db.print_employee(db.get_size() - 1);
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n4. Change employee age by index\n";
+	cout << "Change age to 35\n";
+	db.set_age(35, static_cast<size_t>(5));
+	db.print_employee(5);
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n5. Change employee age by surname\n";
+	cout << "Change age to 40\n\n";
+	db.set_age(40, "Smith");
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n6. Print all employees\n\n";
+	db.print_database();
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n7. Print employees by age 33\n";
+	db.print_by_age(33);
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n8. Print employees by first letter of surname 'S'\n";
+	db.print_by_surname_letter('S');
+	
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n9. Save database to file\n";
+	if (db.save_to_file(file_name))
+		cout << "Database saved to file\n";
+	else
+		cout << "Error saving database to file\n";
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n10. Delete employee by index 5\n";
+	db.delete_employee(5);
+	db.print_database();
+
+	sleep();
+	cout << "\n---------------------\n";
+	cout << "\n11. Load database from file\n";
+	if (db.load_from_file(file_name))
+		cout << "Database loaded from file\n";
+	else
+		cout << "Error loading database from file\n\n";
+	db.print_database();
+
+	cout << "End of automithed actions\n";
+
+	//db.my_interface();
 }
 	
 
