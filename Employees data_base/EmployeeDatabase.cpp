@@ -20,7 +20,7 @@ bool EmployeeDatabase::_check_save(size_t written, size_t expected, FILE* file, 
 // Return "true" if the data is read correctly, close the file and return "false" if not
 // Must be announcer earlier than the other methods
 // Expected the number of elements that was read from the file, that was expected to be read, ptr to file, and what was read
-bool EmployeeDatabase::_check_read(size_t read, size_t expected, FILE* file, const char* what) const
+bool EmployeeDatabase::_check_load(size_t read, size_t expected, FILE* file, const char* what) const
 {
 	if (read != expected) {
 		std::cerr << "\nError reading from file while loading " << what << "\n";
@@ -110,7 +110,7 @@ EmployeeDatabase::Employee::~Employee()
 
 
 // --- Methods ---
-// Clear all data in the Employee object
+// Delete name and surname. Set them to nullptr. Set age to 0
 void EmployeeDatabase::Employee::clear()
 {
 	delete[] name;
@@ -345,7 +345,7 @@ bool EmployeeDatabase::_search_by_surname(const char* search_name, size_t& index
 
 // --- Public methods ---
 // --- Constuctors ---
-EmployeeDatabase::EmployeeDatabase() : database_size(0), database_capacity(5), database(new Employee[database_capacity]) {}
+EmployeeDatabase::EmployeeDatabase() : database_size(0), database_capacity(DEFAULT_DATABASE_CAPACITY), database(new Employee[database_capacity]) {}
 
 EmployeeDatabase::EmployeeDatabase(const char* user_name) 
 	: EmployeeDatabase()
@@ -697,7 +697,12 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 	if (fwrite(&database_size, sizeof(size_t), 1, file) != 1)
 	{
 		fclose(file);
-		std::cerr << "\nWrite database_size error\n";
+		std::cerr << "\nSave database_size error\n";
+		return false;
+	}
+
+	// Save database_capacity
+	if (!_check_save(fwrite(&database_capacity, sizeof(size_t), 1, file), 1, file, "\nSave database_capacity error\n")) {
 		return false;
 	}
 
@@ -732,6 +737,94 @@ bool EmployeeDatabase::save_to_file(const char* file_name) const
 
 		// Save Employee age
 		if (!_check_save(fwrite(&database[i].age, sizeof(database[i].age), 1, file), 1, file, "Age save")) {
+			return false;
+		}
+	}
+
+	fclose(file);
+	return true;
+}
+
+bool EmployeeDatabase::load_from_file(const char* file_name)
+{
+	FILE* file = nullptr;
+	if (fopen_s(&file, file_name, "wr") != 0) {
+		std::cerr << "\nInvalid open file to read\n";
+		return false;
+	}
+
+	// Load database_size
+	if (!_check_load(fread(&database_size, sizeof(size_t), 1, file), 1, file, "Load database_size")) {
+		return false;
+	}
+
+	// Load database_capacity
+	if (!_check_load(fread(&database_capacity, sizeof(size_t), 1, file), 1, file, "Load database_capacity")) {
+		return false;
+	}
+
+	// If the database_capacity is more than the default capacity, delete the old array and create a new one
+	// Else clear the old array using the clear() method of the Employee struct
+	if (database_capacity > DEFAULT_DATABASE_CAPACITY) {
+		delete[] database;
+		database = new Employee[database_capacity];
+	}
+
+	else {
+		for (size_t i = 0; i < database_size; i++) {
+			database[i].clear();
+		}
+	}
+
+
+	// Load Employees
+	for (size_t i = 0; i < database_size; i++)
+	{
+		// Load length of name
+		size_t name_len;
+
+		if (!_check_load(fread(&name_len, sizeof(size_t), 1, file), 1, file, "Load length of employee.name")) {
+			return false;
+		}
+
+		// Load name
+		if (name_len > 0)
+		{
+			database[i].name = new char[name_len + 1];
+
+			if (!_check_load(fread(&database[i].name, sizeof(char), name_len, file), name_len, file, "Load employee.name")) {
+				return false;
+			}
+
+			database[i].name[name_len] = '\0';
+		}
+
+		else
+		{
+			database[i].name = nullptr;
+		}
+
+		// Load length of surname
+		size_t surname_len;
+
+		if (!_check_load(fread(&surname_len, sizeof(size_t), 1, file), 1, file, "Load length of employee.surname")) {
+			return false;
+		}
+
+		// Load name
+		if (surname_len > 0)
+		{
+			database[i].surname = new char[surname_len + 1];
+
+			if (!_check_load(fread(&database[i].surname, sizeof(char), surname_len, file), surname_len, file, "Load employee.surname")) {
+				return false;
+			}
+
+			database[i].surname[surname_len] = '\0';
+		}
+
+		// Load age
+		if (!_check_load(fread(&database[i].age, sizeof(database[i].age), 1, file), 1, file, "Load employee.age")) {
 			return false;
 		}
 	}

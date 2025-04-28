@@ -8,11 +8,12 @@
 
 #define Err static_cast<size_t>(-1)     // For invalid returns
 constexpr auto DEFAULT_CHILD_AGE = 7;
+constexpr auto DEFAULT_DATABASE_CAPACITY = 5;
 
 class EmployeeDatabase{
 	// --- Check save and load Database ---
 	bool _check_save(size_t written, size_t expected, FILE* file, const char* what) const; // Check if the data is written correctly
-	bool _check_read(size_t read, size_t expected, FILE* file, const char* what) const; // Check if the data is read correctly
+	bool _check_load(size_t read, size_t expected, FILE* file, const char* what) const; // Check if the data is read correctly
 
 	// ------------------- Struct -----------------
     struct Employee {
@@ -139,5 +140,5 @@ public:
 
 	// --- Save and load ---
 	bool save_to_file(const char* file_name) const; // Save all employees to file
-    
+	bool load_from_file(const char* file_name);		// Load EmployeeDatabase from file
 };
