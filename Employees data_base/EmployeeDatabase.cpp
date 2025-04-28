@@ -157,10 +157,21 @@ EmployeeDatabase::MyString& EmployeeDatabase::MyString::operator=(const MyString
 {
 	if (this != &other) {
 		delete[] str;
-		length = other.length;
-		capacity = other.capacity;
-		str = new char[capacity];
-		memcpy(str, other.str, capacity);
+
+		if (other.str)
+		{
+			length = other.length;
+			capacity = other.capacity;
+			str = new char[capacity];
+			memcpy(str, other.str, capacity);
+		}
+
+		else
+		{
+			str = nullptr;
+			length = 0;
+			capacity = 0;
+		}
 	}
 	return *this;
 }
