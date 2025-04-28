@@ -783,9 +783,10 @@ void EmployeeDatabase::my_interface()
 			continue;
 		}
 
-		switch (answer)
-		{
-		case 1: 
+		switch (answer) {
+
+		// Print all employees
+		case 1:
 		{
 			size_t index_name;
 			std::cout << "Enter employee name: ";
@@ -803,6 +804,7 @@ void EmployeeDatabase::my_interface()
 			break;
 		}
 
+		// Search employee by surname
 		case 2:
 		{
 			size_t index_surname;
@@ -821,7 +823,8 @@ void EmployeeDatabase::my_interface()
 			break;
 		}
 
-		case 3:{
+		// Delete employee by index
+		case 3: {
 			std::cout << "Enter employee index: ";
 			size_t index;
 			std::cin >> index;
@@ -836,12 +839,13 @@ void EmployeeDatabase::my_interface()
 			break;
 		}
 
+		// Add employee
 		case 4:
 		{
 			std::cout << "Enter employee name: ";
 			MyString input_name;
 			input_name.input_str();
-		    
+
 			std::cout << "Enter employee surname: ";
 			MyString input_surname;
 			input_surname.input_str();
@@ -855,11 +859,14 @@ void EmployeeDatabase::my_interface()
 			break;
 		}
 
+		// Change employee name by index
 		case 5:
 		{
 			std::cout << "Enter employee index: ";
 			size_t index_name;
 			std::cin >> index_name;
+			_clear_cin();
+
 			if (index_name >= database_size) {
 				std::cout << "\nEmployee not found\n\n";
 			}
@@ -870,6 +877,173 @@ void EmployeeDatabase::my_interface()
 				set_name(input_name.str, index_name);
 			}
 			break;
+		}
+
+		// Change employee surname by index
+		case 6:
+		{
+			std::cout << "Enter employee index: ";
+			size_t index_surname;
+			std::cin >> index_surname;
+			_clear_cin();
+
+			if (index_surname >= database_size) {
+				std::cout << "\nEmployee not found\n\n";
+			}
+			else {
+				std::cout << "Enter new employee surname: ";
+				MyString input_surname;
+				input_surname.input_str();
+				set_surname(input_surname.str, index_surname);
+			}
+			break;
+		}
+
+		// Change employee age by index
+		case 7:
+		{
+			std::cout << "Enter employee index: ";
+			size_t index_age;
+			std::cin >> index_age;
+			_clear_cin();
+
+			if (index_age >= database_size) {
+				std::cout << "\nEmployee not found\n\n";
+			}
+			else {
+				std::cout << "Enter new employee age: ";
+				int input_age;
+				std::cin >> input_age;
+				_clear_cin();
+				set_age(input_age, index_age);
+			}
+			break;
+		}
+
+		// Change name by surname
+		case 8:
+		{
+			// input surname for search
+			std::cout << "Enter surname employee that you want to change: ";
+			MyString input_surname;
+			input_surname.input_str();
+			_clear_cin();
+
+			// input name for change
+			std::cout << "Enter new employee name: ";
+			MyString input_name;
+			input_name.input_str();
+
+			set_name(input_name.str, input_surname.str);
+			break;
+		}
+
+		// Change employee surname by surname
+		case 9:
+		{
+			// input surname for search
+			std::cout << "Enter surname employee that you want to change: ";
+			MyString input_surname;
+			input_surname.input_str();
+			_clear_cin();
+
+			// input surname for change
+			std::cout << "Enter new employee surname: ";
+			MyString input_name;
+			input_name.input_str();
+
+			set_surname(input_name.str, input_surname.str);
+			break;
+		}
+
+		// Change employee age by surname
+		case 10:
+		{
+			// input surname for search
+			std::cout << "Enter surname employee that you want to change: ";
+			MyString input_surname;
+			input_surname.input_str();
+			_clear_cin();
+
+			// input age for change
+			std::cout << "Enter new employee age: ";
+			int input_age;
+			std::cin >> input_age;
+			_clear_cin();
+
+			set_age(input_age, input_surname.str);
+			break;
+
+		}
+
+		// Print all employees
+		case 11:
+		{
+			print_database();
+			break;
+		}
+
+		// Print employees by age
+		case 12:
+		{
+			std::cout << "Enter employee age: ";
+			unsigned char input_age;
+			std::cin >> input_age;
+			_clear_cin();
+
+			print_by_age(input_age);
+			break;
+		}
+
+		// Print employees by first letter of surname
+		case 13:
+		{
+			std::cout << "Enter first letter of surname: ";
+			char ch;
+			std::cin >> ch;
+			_clear_cin();
+
+			print_by_surname_letter(ch);
+			break;
+		}
+
+		// Save database to file
+		case 14:
+		{
+			std::cout << "Enter file name: ";
+			char file_name[100];
+			std::cin >> file_name;
+			_clear_cin();
+			if (save_to_file(file_name))
+				std::cout << "\nDatabase saved to file\n";
+			else
+				std::cout << "\nError saving database to file\n";
+			break;
+		}
+
+		// Delete employee by index
+		case 15:
+		{
+			std::cout << "Enter employee index: ";
+			size_t index;
+			std::cin >> index;
+			_clear_cin();
+
+			if (index >= database_size) {
+				std::cout << "\nEmployee not found\n\n";
+			}
+			else {
+				delete_employee(index);
+				std::cout << "\nEmployee deleted\n\n";
+			}
+			break;
+		}
+
+		// Exit
+		case 0:
+			std::cout << "\nGoodbye!\n";
+			save_to_file(DEFAULT_FILE_NAME);
+			return;
 		}
 
 		}

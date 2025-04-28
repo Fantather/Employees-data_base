@@ -8,6 +8,7 @@
 
 constexpr auto DEFAULT_CHILD_AGE = 7;
 constexpr auto DEFAULT_DATABASE_CAPACITY = 5;
+constexpr auto DEFAULT_FILE_NAME = "employees.txt";
 
 class EmployeeDatabase{
 	// --- Check save and load Database ---
