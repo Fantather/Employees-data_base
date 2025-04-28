@@ -2,8 +2,10 @@
 #include <iostream>
 #include <cstring>	//memcpy, strcpy_s, strcmp
 #include <algorithm> // copy, min
+#include <utility>  // move
 
 #define Err static_cast<size_t>(-1)     // For invalid returns
+constexpr auto DEFAULT_CHILD_AGE = 7;
 
 class EmployeeDatabase{
 	// ------------------- Struct -----------------
@@ -33,18 +35,89 @@ class EmployeeDatabase{
         void clear();
     };
 
+	struct MyString
+	{
+		char* str;
+		size_t length;
+		size_t capacity;
+
+		MyString() : str(nullptr), length(0), capacity(0) {}
+		MyString(const char* input_str)
+		{
+			if (input_str == nullptr) {
+				MyString();
+			}
+			else {
+				length = strlen(input_str);
+				capacity = length + 1;
+				str = new char[capacity];
+				memcpy(str, input_str, capacity);
+			}
+		}
+
+		MyString(const MyString& other)
+		{
+			length = other.length;
+			capacity = other.capacity;
+			str = new char[capacity];
+			memcpy(str, other.str, capacity);
+		}
+
+		MyString& operator=(const MyString& other)
+		{
+			if (this != &other) {
+				delete[] str;
+				length = other.length;
+				capacity = other.capacity;
+				str = new char[capacity];
+				memcpy(str, other.str, capacity);
+			}
+			return *this;
+		}
+
+		MyString(MyString&& other) noexcept
+		{
+			str = other.str;
+			length = other.length;
+			capacity = other.capacity;
+			other.str = nullptr;
+			other.length = 0;
+			other.capacity = 0;
+		}
+
+		MyString& operator=(MyString&& other) noexcept
+		{
+			if (this != &other) {
+				delete[] str;
+				str = other.str;
+				length = other.length;
+				capacity = other.capacity;
+				other.str = nullptr;
+				other.length = 0;
+				other.capacity = 0;
+			}
+			return *this;
+		}
+
+		~MyString()
+		{
+			delete[] str;
+		}
+	};
+
+
 	// ------------------- Class -----------------
 private:
-	Employee* database;
 	size_t database_size;
 	size_t database_capacity;
+    Employee* database;
 
 	// --- Private methods ---
 	static char* _deep_copy(const char* input_str);              // Deep copy of a string
     static unsigned char _validate_age(const unsigned char user_age);  // Check if the age is valid for initialize Employees
     static unsigned char _validate_age(const int user_age);
-	bool _check_age(const unsigned char user_age);          // Check if the age is valid
-	bool _check_age(const int user_age);
+	bool _check_age(const unsigned char user_age) const;          // Check if the age is valid
+	bool _check_age(const int user_age) const;
 	int _user_validation(const size_t index) const;     // Get user answer
     
 	void _check_resize();       // Check if the array needs to be resized
@@ -85,7 +158,7 @@ public:
 	void set_age(const unsigned char user_age, const size_t index);         // Change age by index
 	void set_age(const int user_age, const size_t index);
 	void set_age(const unsigned char user_age, const char* search_surname); // Change age by search surname
-	void set_age(const int user_age, const char* search_name);
+	void set_age(const int user_age, const char* search_surname);
 
     // Getters
     char* get_name(const size_t index) const;
@@ -93,10 +166,11 @@ public:
     int get_age(const size_t index) const;
 
     // Print
-    void print_employee(const size_t index) const;
-    void print_database() const;
-    void print_by_age() const;
-    void print_by_surname_letter() const;
+	void print_employee(const size_t index) const;          // Print employee by index
+	void print_database() const;                            // Print all employees
+	void print_by_age(const unsigned char user_age) const;  // Print all employees by age
+	void print_by_age(const int user_age) const;
+	void print_by_surname_letter(const char& ch) const;     // Print all employees by first letter of surname
 
 	// Delete
 	void delete_employee(const size_t index); // Delete employee by index
