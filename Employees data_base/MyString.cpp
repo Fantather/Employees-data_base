@@ -4,79 +4,81 @@
 // Resize string double
 void MyString::resize_str_()
 {
-	if (length < capacity - 1) return; // No need to resize
+	if (length_ < capacity_ - 1) return; // No need to resize
 
-	size_t new_capacity = capacity * 2;
+	size_t new_capacity = capacity_ * 2;
 	char* new_str = new char[new_capacity];
 
-	memcpy(new_str, str, capacity);
+	memcpy(new_str, str_, length_ + 1);
 
-	delete[] str;
-	str = new_str;
-	capacity = new_capacity;
+	delete[] str_;
+	str_ = new_str;
+	capacity_ = new_capacity;
 }
 
+// -------- Constuctors --------
+
 // Default constructor
-MyString::MyString() : length(0), capacity(1), str(new char[capacity]()) {}
+MyString::MyString() : length_(0), capacity_(1), str_(new char[capacity_]()) {}
 
 // Constructor with c-string
 MyString::MyString(const char* c_str)
 {
 	if (c_str == nullptr)
-	{
-		str = new char[1];
-		str[0] = '\0';
-		length = 0;
-		capacity = 1;
+	{str_[length_] = '\0';
+		str_ = new char[1]();
+		length_ = 0;
+		capacity_ = 1;
 	}
 
 	else
 	{
-		length = strlen(c_str);
-		capacity = length + 1;
-		str = new char[capacity];
-		memcpy(str, c_str, capacity);
+		length_ = strlen(c_str);
+		capacity_ = length_ + 1;
+		str_ = new char[capacity_];
+		memcpy(str_, c_str, length_);
+		str_[length_] = '\0';
 	}
 }
 
 // Copy constructor
 MyString::MyString(const MyString& other)
 {
-	length = other.length;
-	capacity = other.capacity;
-	str = new char[capacity];
-	memcpy(str, other.str, capacity);
+	length_ = other.length_;
+	capacity_ = other.capacity_;
+	str_ = new char[capacity_];
+	memcpy(str_, other.str_, capacity_);
 }
 
 // Move constructor
 MyString::MyString(MyString&& other) noexcept
 {
-	str = other.str;
-	length = other.length;
-	capacity = other.capacity;
+	str_ = other.str_;
+	length_ = other.length_;
+	capacity_ = other.capacity_;
 
-	other.str = new char[1];
-	other.length = 0;
-	other.capacity = 1;
-	other.str[0] = '\0';
+	other.str_ = nullptr;
+	other.length_ = 0;
+	other.capacity_ = 0;
 }
 
 // Destructor
 MyString::~MyString()
 {
-	delete[] str;
+	delete[] str_;
 }
 
 // Copy assignment operator
 MyString& MyString::operator=(const MyString& other)
 {
 	if (this != &other) {
-		delete[] str;
+		delete[] str_;
 
-		length = other.length;
-		capacity = other.capacity;
-		str = new char[capacity];
-		memcpy(str, other.str, capacity);
+		length_ = other.length_;
+		capacity_ = other.capacity_;
+		str_ = new char[capacity_];
+
+		memcpy(str_, other.str_, capacity_);
 	}
 	return *this;
 }
@@ -87,29 +89,35 @@ MyString& MyString::operator=(const MyString& other)
 MyString& MyString::operator=(MyString&& other) noexcept
 {
 	if (this != &other) {
-		delete[] str;
-		str = other.str;
-		length = other.length;
+		delete[] str_;
+		str_ = other.str_;
+		length_ = other.length_;
 
-		capacity = other.capacity;
-		other.str = nullptr;
-		other.length = 0;
-		other.capacity = 0;
+		capacity_ = other.capacity_;
+		other.str_ = nullptr;
+		other.length_ = 0;
+		other.capacity_ = 0;
 	}
 	return *this;
 }
 
+// Getters
+// Return const values
+const char* MyString::get_str() const { return str_; }
+const size_t MyString::get_len() const { return length_; }
+const size_t MyString::get_capacity() const { return capacity_; }
+
 void MyString::input_str()
 {
-	delete[] str;
-	length = 0;
-	capacity = 256;
-	str = new char[capacity];
+	delete[] str_;
+	length_ = 0;
+	capacity_ = 25;
+	str_ = new char[capacity_];
 	char ch;
 	while (std::cin.get(ch) && ch != '\n')
 	{
 		resize_str_();
-		str[length++] = ch;
+		str_[length_++] = ch;
 	}
-	str[length] = '\0';
+	str_[length_] = '\0';
 }

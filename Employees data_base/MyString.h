@@ -6,9 +6,9 @@
 class MyString
 {
 private:
-	size_t length;
-	size_t capacity;
-	char* str;
+	size_t length_;
+	size_t capacity_;
+	char* str_;
 
 	void resize_str_();		// Resize string double
 
@@ -25,6 +25,11 @@ public:
 	// Copy and move assignment operators
 	MyString& operator=(const MyString& other);
 	MyString& operator=(MyString&& other) noexcept;
+
+	// Get
+	const char* get_str() const;
+	const size_t get_len() const;
+	const size_t get_capacity() const;
 
 	void input_str();		// Get string by one simbol
 };

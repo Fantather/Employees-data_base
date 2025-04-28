@@ -1,11 +1,14 @@
 #include "EmployeeDatabase.h"
 #include "work_with_array.h"
 #include "work_with_file.h"
+#include "MyString.h"
 using namespace std;
 
 int main() {
-	const char* file_name = "employees.txt";
+	const char* FILE_NAME = "employees.txt";
 	
+	MyString file_name(FILE_NAME);
+	file_name.input_str();
 }
 
 //Задание
